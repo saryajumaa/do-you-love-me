@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Do You Love Me? 💘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pink:#ff6b81;
+      --pink-2:#ff8fab;
+      --bg-1:#0d0b1f;
+      --bg-2:#241842;
+      --glass: rgba(255,255,255,.08);
+      --white:#fff;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      color:var(--white);
+      background: radial-gradient(80vmax 80vmax at 15% 10%, #3a2c6a 0%, transparent 60%),
+                  radial-gradient(90vmax 90vmax at 85% 90%, #5b2a4f 0%, transparent 60%),
+                  linear-gradient(135deg,var(--bg-1),var(--bg-2));
+      overflow:hidden;
+    }
+
+    /* Animated background hearts */
+    .bg-hearts{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0}
+    .bg-hearts span{
+      position:absolute; font-size:clamp(14px,2.5vmin,24px); color:var(--pink-2); opacity:.25;
+      animation: float 14s linear infinite;
+    }
+    @keyframes float{
+      0%{transform:translateY(110vh) rotate(0deg)}
+      100%{transform:translateY(-20vh) rotate(360deg)}
+    }
+
+    .wrap{position:relative; z-index:1; height:100%; display:grid; place-items:center; padding:24px}
+
+    .card{
+      width:min(92vw, 680px);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border-radius:28px; padding:32px 28px; box-shadow:var(--shadow);
+      text-align:center; position:relative; overflow:hidden;
+    }
+    .glow{position:absolute; inset:-2px; border-radius:30px; padding:2px; background:
+      conic-gradient(from 180deg, transparent 0 30deg, rgba(255,255,255,.25) 30deg 60deg, transparent 60deg 100%);
+      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; pointer-events:none; animation:spin 6s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(1turn)}}
+
+    h1{margin:0 0 4px; font-size:clamp(28px,4.8vw,44px); font-weight:800; letter-spacing:.5px}
+    p.sub{margin:0 0 18px; opacity:.8}
+
+    .avatar{
+      width:190px; height:190px; border-radius:30px; overflow:hidden; margin:10px auto 18px; position:relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.2);
+      transform: perspective(600px) rotateX(6deg); transition: transform .4s ease;
+    }
+    .avatar:hover{ transform: perspective(600px) rotateX(0deg) scale(1.02); }
+    .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+
+    .btns{ position:relative; display:flex; justify-content:center; align-items:center; gap:16px; margin-top:10px; padding:28px 0 4px; min-height:80px; }
+
+    button{
+      --pad-x: 28px; --pad-y: 12px; --r: 28px;
+      appearance:none; border:none; cursor:pointer; border-radius:var(--r);
+      padding:var(--pad-y) var(--pad-x); font-weight:700; font-size:16px; letter-spacing:.3px;
+      transition: transform .15s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+    }
+    .btn-yes{
+      background:linear-gradient(180deg, var(--pink), #ff4664);
+      color:#fff; box-shadow:0 10px 24px rgba(255,105,130,.35);
+    }
+    .btn-yes:hover{ transform: translateY(-2px); box-shadow:0 16px 30px rgba(255,105,130,.45); }
+    .btn-yes:active{ transform: translateY(0) scale(.98); }
+
+    .btn-no{
+      background:transparent; color:var(--pink);
+      border:2px solid var(--pink);
+      position:absolute; /* so it can run around within .btns */
+      left:50%; top:50%; transform:translate(-50%,-50%);
+      box-shadow:0 6px 16px rgba(255,105,130,.15);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Floating burst hearts on YES */
+    .heart{
+      position: fixed; left: 0; top: 0; font-size: 22px; pointer-events:none; z-index: 3;
+      animation: burst 1000ms ease-out forwards;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    }
+    @keyframes burst{
+      0%{ transform:translate(var(--sx), var(--sy)) scale(.8); opacity:0 }
+      15%{ opacity:1 }
+      100%{ transform:translate(calc(var(--sx) + var(--dx)), calc(var(--sy) + var(--dy))) scale(1.6); opacity:0 }
+    }
+
+    /* Toast message */
+    .toast{
+      position: fixed; inset:auto 50% 24px; transform:translateX(-50%);
+      background: rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+      padding:12px 18px; border-radius:16px; font-weight:600; backdrop-filter:blur(10px);
+      box-shadow:var(--shadow); z-index:4; opacity:0; translate:0 16px; transition:opacity .25s, translate .25s;
+    }
+    .toast.show{ opacity:1; translate:0 0 }
+
+    /* Small screens tweaks */
+    @media (max-width: 420px){
+      .btns{min-height:120px}
+      .btn-no{font-size:15px}
+    }
+  </style>
+</head>
+<body>
+  <div aria-hidden="true" class="bg-hearts" id="bgHearts"></div>
+
+  <div class="wrap">
+    <section class="card" role="dialog" aria-labelledby="title" aria-describedby="desc">
+      <div class="glow" aria-hidden="true"></div>
+      <h1 id="title">Do You Love Me?</h1>
+      <p id="desc" class="sub">Answer carefully… one of these buttons is a runner. 🏃‍♀️💨</p>
+
+      <figure class="avatar" aria-label="Cute random cat">
+        <img src="https://cataas.com/cat?type=square" alt="Random Cat" />
+      </figure>
+
+      <div class="btns" id="btnZone">
+        <button class="btn-yes" id="yesBtn" aria-label="Yes, I do">Yes 💖</button>
+        <button class="btn-no" id="noBtn" aria-label="No">No 😼</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Aww! Love you too! 💞</div>
+
+  <script>
+    const btnZone = document.getElementById('btnZone');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const toast = document.getElementById('toast');
+    const bgHearts = document.getElementById('bgHearts');
+
+    // --- Background gently floating hearts ---
+    const HEARTS = 22; // number of background hearts
+    for(let i=0;i<HEARTS;i++){
+      const s=document.createElement('span');
+      s.textContent = '❤';
+      s.style.left = Math.random()*100+"%";
+      s.style.animationDelay = (Math.random()*-14)+"s";
+      s.style.opacity = (Math.random()*.35+.1).toFixed(2);
+      s.style.fontSize = (14 + Math.random()*22) + 'px';
+      bgHearts.appendChild(s);
+    }
+
+    // Place the NO button somewhere random within the btnZone initially
+    function placeNoRandom(){
+      const zoneRect = btnZone.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const pad = 6;
+      // compute available width/height inside the zone
+      const maxX = zoneRect.width - btnRect.width - pad*2;
+      const maxY = Math.max(0, 60); // keep within the zone height visually
+      const x = pad + Math.random()*maxX;
+      const y = pad + Math.random()*maxY;
+      noBtn.style.left = x + 'px';
+      noBtn.style.top  = y + 'px';
+      noBtn.style.transform = 'translate(0,0)';
+    }
+    placeNoRandom();
+
+    // Make NO button run away on hover/mousemove
+    let dodgeCount = 0;
+    function dodge(e){
+      const zoneRect = btnZone.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const cursorX = e.clientX - zoneRect.left;
+      const cursorY = e.clientY - zoneRect.top;
+      // move opposite the cursor
+      let targetX = (cursorX < btnRect.left-zoneRect.left) ? btnRect.left-zoneRect.left+60 : btnRect.left-zoneRect.left-60;
+      let targetY = (cursorY < btnRect.top-zoneRect.top) ? btnRect.top-zoneRect.top+40 : btnRect.top-zoneRect.top-40;
+      // clamp inside zone
+      targetX = Math.max(0, Math.min(targetX, zoneRect.width - btnRect.width));
+      targetY = Math.max(0, Math.min(targetY, 70));
+      noBtn.style.left = targetX + 'px';
+      noBtn.style.top  = targetY + 'px';
+      dodgeCount++;
+      if(dodgeCount % 4 === 0){ // sometimes just teleport for fun
+        placeNoRandom();
+      }
+    }
+    noBtn.addEventListener('mouseenter', placeNoRandom);
+    btnZone.addEventListener('mousemove', (e)=>{
+      const over = e.target === noBtn || e.target.closest('#noBtn');
+      if(over) dodge(e);
+    });
+
+    // On touch devices, swap with YES to be playful
+    noBtn.addEventListener('touchstart', (e)=>{
+      e.preventDefault();
+      const yesRect = yesBtn.getBoundingClientRect();
+      noBtn.style.left = yesRect.left - btnZone.getBoundingClientRect().left + 'px';
+      noBtn.style.top = '0px';
+    }, {passive:false});
+
+    // YES: burst hearts + toast + tiny title change
+    yesBtn.addEventListener('click', ()=>{
+      burstHearts();
+      showToast('Aww! Love you too! 💞');
+      document.getElementById('title').textContent = 'Yay! Love confirmed 💘';
+    });
+
+    function showToast(text){
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(()=> toast.classList.remove('show'), 1600);
+    }
+
+    function burstHearts(){
+      const count = 18 + Math.floor(Math.random()*10);
+      const { innerWidth:W, innerHeight:H } = window;
+      const startX = W/2, startY = H*0.72; // around the buttons
+      for(let i=0;i<count;i++){
+        const el = document.createElement('div');
+        el.className = 'heart';
+        // randomize emoji for variety
+        el.textContent = ['❤','💖','💘','💗','💓'][Math.floor(Math.random()*5)];
+        // set CSS variables for the animation path
+        const angle = Math.random()*Math.PI*2;
+        const radius = 80 + Math.random()*240;
+        el.style.setProperty('--sx', startX + 'px');
+        el.style.setProperty('--sy', startY + 'px');
+        el.style.setProperty('--dx', Math.cos(angle)*radius + 'px');
+        el.style.setProperty('--dy', (Math.sin(angle)*radius - 140) + 'px');
+        el.style.fontSize = (18 + Math.random()*22) + 'px';
+        document.body.appendChild(el);
+        // cleanup
+        setTimeout(()=> el.remove(), 1100 + Math.random()*400);
+      }
+    }
+
+    // Load a fresh cat on hover for extra cuteness
+    const avatar = document.querySelector('.avatar img');
+    let swapCooldown = false;
+    avatar.addEventListener('mouseenter', ()=>{
+      if(swapCooldown) return;
+      swapCooldown = true;
+      const url = 'https://cataas.com/cat?type=square&v=' + Date.now();
+      avatar.src = url;
+      setTimeout(()=> swapCooldown=false, 1500);
+    });
+  </script>
+</body>
+</html>
